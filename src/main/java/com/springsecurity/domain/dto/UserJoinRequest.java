@@ -2,9 +2,11 @@ package com.springsecurity.domain.dto;
 
 import com.springsecurity.domain.User;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,10 +15,10 @@ public class UserJoinRequest {
     private String password;
     private String emailAddress;
 
-    public User toEntity() {
+    public User toEntity(String password) {
         return User.builder()
                 .userName(this.userName)
-                .password(this.password)
+                .password(password)
                 .emailAddress(this.emailAddress)
                 .build();
     }

@@ -5,6 +5,7 @@ import com.springsecurity.domain.dto.UserDto;
 import com.springsecurity.domain.dto.UserJoinRequest;
 import com.springsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
 
     public UserDto join(UserJoinRequest userJoinRequest) {
 
@@ -19,11 +21,11 @@ public class UserService {
         // 중복이면 회원가입 X -> Exception(예외 발생)
         userRepository.findByUserName(userJoinRequest.getUserName())
                 .ifPresent(user -> {
-                    throw new RuntimeException("입력하신 userName은 중복으로 회원가입이 불가합니다.");
+                    throw new RuntimeException("입력하신 userName 은 중복으로 회원가입이 불가합니다.");
                 });
 
-        // 회원가입: ,save()
-        User savedUser = userRepository.save(userJoinRequest.toEntity());
+        // 회원가입: .save()
+        User savedUser = userRepository.save(userJoinRequest.toEntity(encoder.encode(userJoinRequest.getPassword())));
 
 
         return UserDto.builder()

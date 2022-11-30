@@ -35,15 +35,16 @@ class UserControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    UserJoinRequest userJoinRequest = UserJoinRequest.builder()
+            .userName("wkdtjgus0319")
+            .password("191919")
+            .emailAddress("wkdtjgus0319@naver.com")
+            .build();
+
     @Test
     @DisplayName("회원가입 성공")
     @WithMockUser
-    void joinSuccess() throws Exception {
-        UserJoinRequest userJoinRequest = UserJoinRequest.builder()
-                .userName("wkdtjgus0319")
-                .password("191919")
-                .emailAddress("wkdtjgus0319@naver.com")
-                .build();
+    void join_success() throws Exception {
 
         when(userService.join(any())).thenReturn(mock(UserDto.class));
 
@@ -58,12 +59,8 @@ class UserControllerTest {
     @Test
     @DisplayName("회원가입 실패")
     @WithMockUser
-    void joinFail() throws Exception {
-        UserJoinRequest userJoinRequest = UserJoinRequest.builder()
-                .userName("wkdtjgus0319")
-                .password("191919")
-                .emailAddress("wkdtjgus0319@naver.com")
-                .build();
+    void join_fail() throws Exception {
+
 
         when(userService.join(any())).thenThrow(new SpringSecurityAppException(ErrorCode.DUPLICATED_USER_NAME, ""));
 
@@ -73,5 +70,37 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsBytes(userJoinRequest)))
                 .andDo(print())
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("로그인 실패: id 없음")
+    @WithMockUser
+    void login_fail1() throws Exception {
+
+        String id = "seohyeon";
+        String password = "191919";
+
+        when(userService.login(any(), any())).thenThrow(new SpringSecurityAppException(ErrorCode.NOT_FOUND, ""));
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("로그인 실패: pw 틀림")
+    @WithMockUser
+    void login_fail2() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("로그인 성공")
+    @WithMockUser
+    void login_success() throws Exception {
+
     }
 }
